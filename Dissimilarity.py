@@ -12,7 +12,14 @@ class Dissimilarity:
         param dissimilarity_type: The type of the dissimilarity, optional values are:
         rjsd, jsd, BC, euclidean. Type: string. Default: rjsd.
         """
+        if not isinstance(dissimilarity_type, str) or dissimilarity_type not in ["rjsd", "jsd", "BC", "euclidean"]:
+            raise TypeError("dissimilarity_type must be a string with optional values:"
+                            " 'rjsd', 'jsd', 'BC', 'euclidean'")
         self.dissimilarity_type = dissimilarity_type
+        if not isinstance(sample_first, np.ndarray) or not isinstance(sample_second, np.ndarray):
+            raise TypeError("sample_first and sample_second must be numpy arrays")
+        if sample_first.shape != sample_second.shape:
+            raise ValueError("sample_first and sample_second must have the same length")
         self.sample_first = sample_first
         self.sample_second = sample_second
         [self.normalized_sample_first, self.normalized_sample_second] = self.normalize()
@@ -65,13 +72,9 @@ class Dissimilarity:
         """
         # Calculate dissimilarity
         if self.dissimilarity_type == "rjsd":
-            if ((self.dkl(self.normalized_sample_first_hat) + self.dkl(
-                    self.normalized_sample_second_hat)) / 2) > 0:
-                self.dissimilarity = np.sqrt((self.dkl(self.normalized_sample_first_hat) +
-                                              self.dkl(self.normalized_sample_second_hat)) / 2)
-            else:
-                self.dissimilarity = 0
-            return self.dissimilarity
+            dissimilarity = np.sqrt((self.dkl(self.normalized_sample_first_hat) +
+                                     self.dkl(self.normalized_sample_second_hat)) / 2)
+            return dissimilarity
         elif self.dissimilarity_type == "jsd":
             dissimilarity = (self.dkl(self.normalized_sample_first_hat) +
                              self.dkl(self.normalized_sample_second_hat)) / 2
