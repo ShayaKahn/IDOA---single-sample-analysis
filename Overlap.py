@@ -9,9 +9,13 @@ class Overlap:
         :param sample_first: first sample, 1D array.
         :param sample_second: second sample, 1D array.
         """
+        if not isinstance(sample_first, np.ndarray) or not isinstance(sample_second, np.ndarray):
+            raise TypeError("sample_first and sample_second must be numpy arrays")
+        if sample_first.shape != sample_second.shape:
+            raise ValueError("sample_first and sample_second must have the same length")
         self.sample_first = sample_first
         self.sample_second = sample_second
-        [self.normalized_sample_first, self.normalized_sample_second] = self.normalize()
+        [self.normalized_sample_1, self.normalized_sample_2] = self.normalize()
         self.s = self.find_intersection()
 
     def normalize(self):
@@ -19,18 +23,18 @@ class Overlap:
         This method normalizes the two samples.
         :return: normalized samples.
         """
-        normalized_sample_first = self.sample_first / np.sum(self.sample_first)  # Normalization of the first sample.
-        normalized_sample_second = self.sample_second / np.sum(self.sample_second)  # Normalization of the second sample.
-        return normalized_sample_first, normalized_sample_second
+        normalized_sample_1 = self.sample_first / np.sum(self.sample_first)  # Normalization of the first sample.
+        normalized_sample_2 = self.sample_second / np.sum(self.sample_second)  # Normalization of the second sample.
+        return normalized_sample_1, normalized_sample_2
 
     def find_intersection(self):
         """
         This method finds the shared non-zero indexes of the two samples.
         :return: the set s with represent the intersected indexes
         """
-        nonzero_index_first = np.nonzero(self.normalized_sample_first)  # Find the non-zero index of the first sample.
-        nonzero_index_second = np.nonzero(self.normalized_sample_second)  # Find the non-zero index of the second sample.
-        s = np.intersect1d(nonzero_index_first, nonzero_index_second)  # Find the intersection.
+        nonzero_index_1 = np.nonzero(self.normalized_sample_1)  # Find the non-zero index of the first sample.
+        nonzero_index_2 = np.nonzero(self.normalized_sample_2)  # Find the non-zero index of the second sample.
+        s = np.intersect1d(nonzero_index_1, nonzero_index_2)  # Find the intersection.
         return s
 
     def calculate_overlap(self):
@@ -39,5 +43,5 @@ class Overlap:
         :return: the overlap value.
         """
         # Calculation of the overlap value between the two samples.
-        overlap = np.sum(self.normalized_sample_first[self.s] + self.normalized_sample_second[self.s]) / 2
+        overlap = np.sum(self.normalized_sample_1[self.s] + self.normalized_sample_2[self.s])/2
         return overlap
